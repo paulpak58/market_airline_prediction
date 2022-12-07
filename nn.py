@@ -13,7 +13,7 @@ class NN(nn.Module):
         self.bn1 = nn.BatchNorm1d(hidden)
         self.fc2 = nn.Linear(hidden,hidden*2)
         self.bn2 = nn.BatchNorm1d(hidden*2)
-        self.fc3 = nn.Linear(hidden,hidden*4)
+        self.fc3 = nn.Linear(hidden*2,hidden*4)
         self.bn3 = nn.BatchNorm1d(hidden*4)
         self.fc4 = nn.Linear(hidden*4,hidden*8)
         self.bn4 = nn.BatchNorm1d(hidden*8)
@@ -72,7 +72,7 @@ class MarketTrainer(pl.LightningModule):
         y = y.flatten()
         y_pred = y_pred.flatten()
         loss = self.loss_fn(y,y_pred)
-        self.log('train_loss:',loss)
+        self.log('train_loss:',loss,sync_dist=True)
         return loss
 
     def validation_step(self,batch,batch_idx):
@@ -81,7 +81,7 @@ class MarketTrainer(pl.LightningModule):
         y = y.flatten()
         y_pred = y_pred.flatten()
         loss = self.loss_fn(y,y_pred)
-        self.log('val_loss:',loss)
+        self.log('val_loss:',loss,sync_dist=True)
         return loss
 
     def validation_epoch_end(self,outputs)->None:
@@ -93,7 +93,7 @@ class MarketTrainer(pl.LightningModule):
 
 if __name__=='__main__':
     # Configs
-    batch_size=4
+    batch_size=64
     num_workers=4
     gpus=1
 
