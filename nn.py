@@ -1,3 +1,4 @@
+import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -6,16 +7,27 @@ from data import MarketAirlineDataset
 from torch.utils.data import DataLoader
 
 class NN(nn.Module):
-    def __init__(self,in_features=22,hidden1=256,hidden2=128,out_features=1):
+    def __init__(self,in_features=22,hidden1=256,hidden2=512,hidden3=256,hidden4=128,out_features=1):
         super().__init__()
         self.fc1 = nn.Linear(in_features,hidden1)
         # self.bn1 = nn.BatchNorm1d(16)
         self.fc2 = nn.Linear(hidden1,hidden2)
-        self.out = nn.Linear(hidden2,out_features)
+        self.fc3 = nn.Linear(hidden2,hidden2)
+        self.fc4 = nn.Linear(hidden2,hidden2)
+        self.fc5 = nn.Linear(hidden2,hidden2)
+
+        self.fc6 = nn.Linear(hidden2,hidden3)
+        self.fc7 = nn.Linear(hidden3,hidden4)
+        self.out = nn.Linear(hidden4,out_features)
 
     def forward(self,x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        x = F.relu(self.fc4(x))
+        x = F.relu(self.fc5(x))
+        x = F.relu(self.fc6(x))
+        x = F.relu(self.fc7(x))
         x = self.out(x)
         return x
 
@@ -78,13 +90,13 @@ if __name__=='__main__':
     # Configs
     batch_size=4
     num_workers=4
-    gpus=0
+    gpus=1
 
     # filename = 'market_airline_level.R'
     filename = 'df.csv'
-    train_size = 0.8
-    val_size = 0.2
     dataset = MarketAirlineDataset(filename)
+    train_size = math.floor(0.8*len(dataset))
+    val_size = len(dataset)-train_size
     train_dataset,val_dataset = torch.utils.data.random_split(dataset,[train_size,val_size])
     print(len(train_dataset),len(val_dataset))
     # Retrieve datasets
@@ -125,13 +137,13 @@ if __name__=='__main__':
         )
     else:
         trainer = pl.Trainer(
-            # accelerator='cpu',
+            accelerator='gpu',
             devices=1,
             strategy='ddp',
             num_nodes=1,
             check_val_every_n_epoch=1,
             default_root_dir=None,
-            max_epochs=30,
+            max_epochs=150,
             # accumulate_grad_batches=16,
             # precision=16
         )
