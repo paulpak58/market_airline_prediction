@@ -93,14 +93,15 @@ class MarketTrainer(pl.LightningModule):
 
 if __name__=='__main__':
     # Configs
-    batch_size=64
+    batch_size=128
     num_workers=4
     gpus=1
+    lr=1e-5
 
     # filename = 'market_airline_level.R'
     filename = 'df.csv'
     dataset = MarketAirlineDataset(filename)
-    train_size = math.floor(0.8*len(dataset))
+    train_size = math.floor(0.7*len(dataset))
     val_size = len(dataset)-train_size
     train_dataset,val_dataset = torch.utils.data.random_split(dataset,[train_size,val_size])
     print(len(train_dataset),len(val_dataset))
@@ -124,7 +125,8 @@ if __name__=='__main__':
         out_features=1
     )
     model = MarketTrainer(
-        model = backbone
+        model = backbone,
+        lr=lr
     )
     
     #if cuda.is_available():
@@ -148,7 +150,7 @@ if __name__=='__main__':
             num_nodes=1,
             check_val_every_n_epoch=1,
             default_root_dir=None,
-            max_epochs=150,
+            max_epochs=250,
             # accumulate_grad_batches=16,
             # precision=16
         )
