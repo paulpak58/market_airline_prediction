@@ -18,10 +18,14 @@ class MarketAirlineDataset(Dataset):
         # 'QUARTER_0', 'avg_dist_sqr_0', 'avg_dist_sqr_1', 'avg_dist_sqr_2',
         # 'avg_dist_sqr_3', 'AIRLINE_ID_0', 'Period_0', 'ID_0'],
         df = pd.read_csv(filename)
+        """
         x = df[['AIRLINE_ID_0','ID_0','avg_price_0','avg_price_1','avg_price_2','tot_passengers_0','tot_passengers_1',\
                 'tot_passengers_2','tot_passengers_3','avg_dist_0','avg_dist_1','avg_dist_2','avg_dist_3',\
                 'tot_passengers_sqr_0','tot_passengers_sqr_1','tot_passengers_sqr_2','tot_passengers_sqr_3',\
                 'avg_dist_sqr_0','avg_dist_sqr_1','avg_dist_sqr_2','avg_dist_sqr_3']].values
+        """
+        x = df[['AIRLINE_ID_0','ID_0','avg_price_0','avg_price_1','avg_price_2','tot_passengers_0','tot_passengers_1',\
+                'tot_passengers_2','tot_passengers_3','avg_dist_0','avg_dist_1','avg_dist_2','avg_dist_3']].values
         y = df['avg_price_3'].values
         self.x_train = torch.tensor(x,dtype=torch.float32)
         self.y_train = torch.tensor(y,dtype=torch.float32)

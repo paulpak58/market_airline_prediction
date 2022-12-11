@@ -95,8 +95,8 @@ if __name__=='__main__':
     # Configs
     batch_size=128
     num_workers=4
-    gpus=1
-    lr=1e-5
+    gpus=0
+    lr=1e-4
 
     # filename = 'market_airline_level.R'
     filename = 'df.csv'
@@ -119,7 +119,7 @@ if __name__=='__main__':
         num_workers=num_workers
     )
     backbone = NN(
-        in_features=21,
+        in_features=13,
         hidden1=256,
         hidden2=128,
         out_features=1
