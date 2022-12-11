@@ -93,10 +93,10 @@ class MarketTrainer(pl.LightningModule):
 
 if __name__=='__main__':
     # Configs
-    batch_size=128
+    batch_size=512
     num_workers=4
     gpus=0
-    lr=1e-4
+    lr=4e-5
 
     # filename = 'market_airline_level.R'
     filename = 'df.csv'
@@ -130,7 +130,7 @@ if __name__=='__main__':
     )
     
     #if cuda.is_available():
-    if False:
+    if True:
         trainer = pl.Trainer(
             accelerator='gpu',
             devices=1,
@@ -138,9 +138,9 @@ if __name__=='__main__':
             num_nodes=1,
             check_val_every_n_epoch=1,
             default_root_dir=None,
-            max_epochs=30,
-            accumulate_grad_batches=16,
-            precision=16
+            max_epochs=400,
+            # accumulate_grad_batches=16,
+            # precision=16
         )
     else:
         trainer = pl.Trainer(
@@ -150,8 +150,9 @@ if __name__=='__main__':
             num_nodes=1,
             check_val_every_n_epoch=1,
             default_root_dir=None,
-            max_epochs=250,
+            max_epochs=400,
             # accumulate_grad_batches=16,
             # precision=16
         )
-    trainer.fit(model,dataloader_train,dataloader_val,ckpt_path=None)
+    # trainer.fit(model,dataloader_train,dataloader_val,ckpt_path='lightning_logs/less_regressors1/checkpoints/epoch=249-step=10500.ckpt')
+    trainer.fit(model,dataloader_train,dataloader_val)
