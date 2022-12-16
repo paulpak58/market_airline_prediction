@@ -3,7 +3,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import pytorch_lightning as pl
-from data import MarketAirlineDataset
+# from data import MarketAirlineDataset
+from lagged_data import MarketAirlineDataset
 from torch.utils.data import DataLoader
 
 class NN(nn.Module):
@@ -17,13 +18,15 @@ class NN(nn.Module):
         self.bn3 = nn.BatchNorm1d(hidden*4)
         self.fc4 = nn.Linear(hidden*4,hidden*8)
         self.bn4 = nn.BatchNorm1d(hidden*8)
-        self.fc5 = nn.Linear(hidden*8,hidden*8)
-        self.bn5 = nn.BatchNorm1d(hidden*8)
-        self.fc6 = nn.Linear(hidden*8,hidden*4)
-        self.bn6 = nn.BatchNorm1d(hidden*4)
-        self.fc7 = nn.Linear(hidden*4,hidden*2)
-        self.bn7 = nn.BatchNorm1d(hidden*2)
-        self.out = nn.Linear(hidden*2,out_features)
+        self.fc5 = nn.Linear(hidden*8,hidden*16)
+        self.bn5 = nn.BatchNorm1d(hidden*16)
+        self.fc6 = nn.Linear(hidden*16,hidden*16)
+        self.bn6 = nn.BatchNorm1d(hidden*16)
+        self.fc7 = nn.Linear(hidden*16,hidden*8)
+        self.bn7 = nn.BatchNorm1d(hidden*8)
+        self.fc8 = nn.Linear(hidden*8,hidden*4)
+        self.bn8 = nn.BatchNorm1d(hidden*4)
+        self.out = nn.Linear(hidden*4,out_features)
 
     def forward(self,x):
         x = F.relu(self.bn1(self.fc1(x)))
@@ -33,6 +36,7 @@ class NN(nn.Module):
         x = F.relu(self.bn5(self.fc5(x)))
         x = F.relu(self.bn6(self.fc6(x)))
         x = F.relu(self.bn7(self.fc7(x)))
+        x = F.relu(self.bn8(self.fc8(x)))
         x = self.out(x)
         return x
 
@@ -72,7 +76,7 @@ class MarketTrainer(pl.LightningModule):
         y = y.flatten()
         y_pred = y_pred.flatten()
         loss = self.loss_fn(y,y_pred)
-        self.log('train_loss:',loss,sync_dist=True)
+        self.log('train_loss:',loss)
         return loss
 
     def validation_step(self,batch,batch_idx):
@@ -93,13 +97,13 @@ class MarketTrainer(pl.LightningModule):
 
 if __name__=='__main__':
     # Configs
-    batch_size=512
+    batch_size=256
     num_workers=4
     gpus=0
     lr=4e-5
 
     # filename = 'market_airline_level.R'
-    filename = 'df.csv'
+    filename = 'final_df_with_lag.csv'
     dataset = MarketAirlineDataset(filename)
     train_size = math.floor(0.7*len(dataset))
     val_size = len(dataset)-train_size
@@ -119,7 +123,7 @@ if __name__=='__main__':
         num_workers=num_workers
     )
     backbone = NN(
-        in_features=13,
+        in_features=8,
         hidden1=256,
         hidden2=128,
         out_features=1
@@ -129,8 +133,7 @@ if __name__=='__main__':
         lr=lr
     )
     
-    #if cuda.is_available():
-    if True:
+    if torch.cuda.is_available():
         trainer = pl.Trainer(
             accelerator='gpu',
             devices=1,
