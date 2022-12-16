@@ -103,7 +103,7 @@ if __name__=='__main__':
     lr=4e-5
 
     # filename = 'market_airline_level.R'
-    filename = 'final_df_with_lag.csv'
+    filename = 'data/final_df_with_lag.csv'
     dataset = MarketAirlineDataset(filename)
     train_size = math.floor(0.7*len(dataset))
     val_size = len(dataset)-train_size
