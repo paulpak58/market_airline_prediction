@@ -24,4 +24,11 @@ if __name__=='__main__':
     # y = find['avg_price_t1'].values
     pred = model(torch.tensor(x).float())
     avg_pred = torch.mean(pred)
-    print('Counterfactual market fare prediction: ', avg_pred.item())
+    print('Counterfactual market fare prediction pre-merger: ', avg_pred.item())
+
+    x_cf = find[['YEAR','QUARTER','avg_price','tot_passengers','avg_dist','Closed',\
+               'ID','AIRLINE_ID']]
+    x_cf = x_cf.assign(Closed=1.).values
+    cf_pred = model(torch.tensor(x_cf).float())
+    avg_cf_pred = torch.mean(cf_pred)
+    print('Counterfactual market fare prediction post-merger: ', avg_cf_pred.item())
